@@ -1,10 +1,52 @@
-<script setup>
+<script>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { ref } from 'vue';
+//import { encrypt } from '@/utils/encrypt';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
+export default{
+    data(){
+        return{
+          us:null,
+          pass:null,
+          clave:'extensis23435'  
+        }
+    },
+    methods:{
+        
+        login(){
+            try {
+                axios.post('https://mittril.com/fusioA/public/index.php/tik_login',{
+                    us:this.us,
+                    ps:this.pass
+                })
+                .then(response=>{
+                    if(response.data.status==='ok'){
+                        //const usuario=encrypt(this.us) 
+                        //console.log('mensaje cifrado:', usuario)
+                        Cookies.set('us',this.us);
+                        Cookies.set('ps',this.pass);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Bienvenido',
+                            text: 'Bienvenido a Extensis SRL',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        this.$router.push('/home');
+                    }
+                })
+            } catch (error) {
+                console.error('error: ',error);           
+            }
+        }
+    },
+    components:{
+        FloatingConfigurator
+    }
+}
 
-const email = ref('');
-const password = ref('');
-const checked = ref(false);
+
 </script>
 
 <template>
@@ -31,25 +73,19 @@ const checked = ref(false);
                                 />
                             </g>
                         </svg>
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
-                        <span class="text-muted-color font-medium">Sign in to continue</span>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Extensis SRL</div>
+                        <span class="text-muted-color font-medium">Ingrese y continue</span>
                     </div>
 
                     <div>
-                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                        <label for="usuario" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Usuario</label>
+                        <InputText id="usuario" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="us" />
 
-                        <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                        <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+                        <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                        <Password id="password" v-model="pass" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
 
-                        <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                            <div class="flex items-center">
-                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
-                                <label for="rememberme1">Remember me</label>
-                            </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
-                        </div>
-                        <Button label="Sign In" class="w-full" as="router-link" to="/"></Button>
+                        
+                        <Button label="Sign In" class="w-full" @click="login"></Button>
                     </div>
                 </div>
             </div>

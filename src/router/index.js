@@ -1,17 +1,33 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import Login from '@/views/pages/auth/Login.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/',
+            path:'/',
+            component:Login,
+            name:'Login',
+        },
+        {
+            path:'/home',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '/home',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
+                },
+                {
+                    path:'/crearticket',
+                    name:'crearticket',
+                    component:()=> import('@/views/uikit/crearTicket.vue')
+                },
+                {
+                    path:'/ticket',
+                    name:'ticket',
+                    component:()=> import('@/views/uikit/ticket.vue')
                 },
                 {
                     path: '/uikit/formlayout',
@@ -105,7 +121,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/Documentation.vue')
                 }
             ]
-        },
+        } ,
         {
             path: '/landing',
             name: 'landing',
