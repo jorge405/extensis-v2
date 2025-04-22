@@ -1,7 +1,7 @@
 <script>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-//import { encrypt } from '@/utils/encrypt';
 import axios from 'axios';
+import * as cryptoJS from 'crypto-js';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 export default{
@@ -22,10 +22,13 @@ export default{
                 })
                 .then(response=>{
                     if(response.data.status==='ok'){
-                        //const usuario=encrypt(this.us) 
-                        //console.log('mensaje cifrado:', usuario)
-                        Cookies.set('us',this.us);
-                        Cookies.set('ps',this.pass);
+                        
+                        const usuario= cryptoJS.AES.encrypt(this.us,this.clave).toString();
+                        Cookies.set('us',usuario);
+                        const pass=cryptoJS.AES.encrypt(this.pass,this.clave).toString();
+                        Cookies.set('pass',pass);
+                        const nombre=  cryptoJS.AES.encrypt(response.data.msg[0].nombre,this.clave).toString();
+                        Cookies.set('nombre',nombre);
                         Swal.fire({
                             icon: 'success',
                             title: 'Bienvenido',
@@ -45,13 +48,13 @@ export default{
         FloatingConfigurator
     }
 }
-
+// cambiar el aspecto del login 
 
 </script>
 
 <template>
     <FloatingConfigurator />
-    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[50vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">

@@ -1,13 +1,26 @@
 <script>
-
+import cryptoJS from 'crypto-js';
+import Cookies from 'js-cookie';
 export default{
     data(){
         return{
+        us:'',
+        nombre:'',    
         dropdownItems:[
             { name: 'Option 1', code: 'Option 1' },
             { name: 'Option 2', code: 'Option 2' },
             { name: 'Option 3', code: 'Option 3' }
-        ],   
+        ],  
+        clave:'extensis23435'   
+        }
+    },
+    mounted(){
+        this.getData();
+    },
+    methods:{
+        getData(){
+            this.us= cryptoJS.AES.decrypt(Cookies.get('us'),this.clave).toString(cryptoJS.enc.Utf8);
+            this.nombre= cryptoJS.AES.decrypt(Cookies.get('nombre'),this.clave).toString(cryptoJS.enc.Utf8);
         }
     }
 }
@@ -22,11 +35,11 @@ export default{
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="firstname2">Usuario</label><i class="pi pi-user"></i>
-                        <InputText id="firstname2" type="text" disabled />
+                        <InputText id="firstname2" type="text" v-model="us" disabled />
                     </div>
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="lastname2">Nombre</label><i class="pi pi-id-card"></i>
-                        <InputText id="lastname2" type="text" disabled />
+                        <InputText id="lastname2" type="text" v-model="nombre" disabled />
                     </div>
                 </div>
                 <hr class=" bg-blue-700 h-1 rounded-full" />
@@ -110,7 +123,7 @@ export default{
                 </div>
                 <div class="flex flex-wrap">
                     <label for="descripcion">Descripcion</label>
-                    <Textarea id="descripcion" rows="4" />
+                    <Textarea id="descripcion" rows="4"/>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
