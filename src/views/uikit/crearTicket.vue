@@ -1,4 +1,5 @@
 <script>
+import axios from 'axios';
 import cryptoJS from 'crypto-js';
 import Cookies from 'js-cookie';
 export default{
@@ -11,18 +12,48 @@ export default{
             { name: 'Option 2', code: 'Option 2' },
             { name: 'Option 3', code: 'Option 3' }
         ],  
+        estado_tik:[
+            {name:'cerrado C.S',code:'option 1'},
+            {name:'postergado',code:'option 2'},
+            {name:'en proceso',code:'option 3'},
+            {name:'cerrado S.S',code:'option 4'},
+        ],
+        regionales:null,
+        localidad:[
+            {name:'ciudad',code:'option 1'},
+            {name:'provincia',code:'option 2'},
+        ],
+
         clave:'extensis23435'   
         }
     },
     mounted(){
         this.getData();
+        this.getRegionales();
     },
     methods:{
         getData(){
             this.us= cryptoJS.AES.decrypt(Cookies.get('us'),this.clave).toString(cryptoJS.enc.Utf8);
             this.nombre= cryptoJS.AES.decrypt(Cookies.get('nombre'),this.clave).toString(cryptoJS.enc.Utf8);
+        },
+        getRegionales(){
+            try {
+                axios.get('https://mittril.com/fusioA/public/index.php/tik_regionales')
+                .then(response=>{
+                    
+                    const data= response.data.entry;
+                    this.regionales=data
+                    console.log(this.regionales)
+                })
+                .catch(error=>{
+                    console.log(error)                   
+                })
+            } catch (error) {
+                
+            }
         }
-    }
+    },
+    
 }
 
 </script>
@@ -46,7 +77,7 @@ export default{
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="estado">Estado ticket</label><i class="pi pi-arrows-h"></i>
-                        <Select id="estado"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="estado"  :options="estado_tik" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="phone">Fecha(asignado)</label><i class="pi pi-calendar"></i>
@@ -64,11 +95,11 @@ export default{
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="regional">Regional</label><i class="pi pi-sitemap"></i>
-                        <Select id="regional"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="regional"  :options="regionales" optionLabel="regional" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="localidad">Localidad</label><i class="pi pi-sitemap"></i>
-                        <Select id="localidad"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="localidad"  :options="localidad" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">

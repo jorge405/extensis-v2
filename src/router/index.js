@@ -25,6 +25,11 @@ const router = createRouter({
                     component:()=> import('@/views/uikit/crearTicket.vue')
                 },
                 {
+                    path:'/crearEquipo',
+                    name:'crearEquipo',
+                    component:()=> import('@/views/uikit/crearEquipo.vue')
+                },
+                {
                     path:'/ticket',
                     name:'ticket',
                     component:()=> import('@/views/uikit/ticket.vue')

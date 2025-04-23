@@ -12,6 +12,7 @@ const model = ref([
         label: 'UI Components',
         items: [
             {label:'Crear ticket',icon:'pi pi-fw pi-ticket',to:'/crearticket'},
+            {label:'Crear equipo',icon:'pi pi-fw pi-ticket',to:'/crearequipo'},
             {label:'Lista ticket',icon:'pi pi-tag',to:'/ticket'},
             { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
             { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
