@@ -23,13 +23,14 @@ export default{
             {name:'ciudad',code:'option 1'},
             {name:'provincia',code:'option 2'},
         ],
-
+        equipo:'',    
         clave:'extensis23435'   
         }
     },
     mounted(){
         this.getData();
         this.getRegionales();
+        this.getEquipo();
     },
     methods:{
         getData(){
@@ -48,6 +49,19 @@ export default{
                 .catch(error=>{
                     console.log(error)                   
                 })
+            } catch (error) {
+                
+            }
+        },
+        getEquipo(){
+            try {
+                axios.get('https://mittril.com/fusioA/public/index.php/tik_equipo')
+            .then(response=>{
+                this.equipo= response.data.entry
+            })
+            .catch(error=>{
+                console.log(error)
+            })
             } catch (error) {
                 
             }
@@ -129,7 +143,7 @@ export default{
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="modelo">Modelo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="modelo"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="modelo"  :options="equipo" optionLabel="modelo" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="RG">Cod. RG</label><i class="pi pi-code"></i>
