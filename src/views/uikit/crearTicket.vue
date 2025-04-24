@@ -36,16 +36,18 @@ export default{
             {name:'otro',code:'option 3'}
         ],
         Tipo:[
-            {name:'Choppera Cervezas',code:'option 1'},
-            {name:'Heladera Cerveza',code:'option 2'},
-            {name:'EDF Cervezas',code:'option 3'},
-            {name:'EDF Gaseosas',code:'option 4'},
-            {name:'Dispenser Gaseosas',code:'option 5'},
-            {name:'Gondola',code:'option 6'},
-            {name:'Camara de frio Cervezas',code:'option 7'},
-            {name:'otro',code:'option 8'}
-        ],            
-        equipo:'',    
+            {name:'Choppera Cervezas',code:'101'},
+            {name:'Heladera Cerveza',code:'102'},
+            {name:'EDF Cervezas',code:'103'},
+            {name:'EDF Gaseosas',code:'104'},
+            {name:'Dispenser Gaseosas',code:'105'},
+            {name:'Gondola',code:'106'},
+            {name:'Camara de frio Cervezas',code:'107'},
+            {name:'otro',code:'108'}
+        ],
+        op_solicitada:'',            
+        equipo:'', 
+        servicio:'',   
         clave:'extensis23435'   
         }
     },
@@ -53,6 +55,7 @@ export default{
         this.getData();
         this.getRegionales();
         this.getEquipo();
+        this.getServicio();
     },
     methods:{
         getData(){
@@ -84,6 +87,20 @@ export default{
             .catch(error=>{
                 console.log(error)
             })
+            } catch (error) {
+                
+            }
+        },
+        getServicio(){
+            try {
+                axios.get(`https://mittril.com/fusioA/public/index.php/tik_listado_servicio/${1}`)
+                .then(response=>{
+                    console.log(response.data.entry)
+                    this.servicio=response.data.entry.filter(item=> item.op_realizada !== '');
+                    console.log(this.servicio)
+                    this.op_solicitada= response.data.entry.filter(item=> item.op_solicitada !== null)
+                    console.log(this.op_solicitada)
+                })
             } catch (error) {
                 
             }
@@ -175,11 +192,11 @@ export default{
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="solicitada">Op. Solicitada</label><i class="pi pi-wrench"></i>
-                        <Select id="solicitada"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="solicitada"  :options="op_solicitada" optionLabel="op_solicitada" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="reliazada">Op. Realizada</label><i class="pi pi-wrench"></i>
-                        <Select id="realizada"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="realizada"  :options="servicio" optionLabel="op_realizada" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-1 gap-2">
