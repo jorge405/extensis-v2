@@ -23,6 +23,28 @@ export default{
             {name:'ciudad',code:'option 1'},
             {name:'provincia',code:'option 2'},
         ],
+        PLOTEO:[
+            {name:'pacena',code:'option 1'},
+            {name:'pepsi',code:'option 2'},
+            {name:'huari',code:'option 3'},
+            {name:'Prost',code:'option 4'},
+            {name:'H20',code:'option 5'}
+        ],
+        Marca:[
+            {name:'metalfrio',code:'option 1'},
+            {name:'imbera',code:'option 2'},
+            {name:'otro',code:'option 3'}
+        ],
+        Tipo:[
+            {name:'Choppera Cervezas',code:'option 1'},
+            {name:'Heladera Cerveza',code:'option 2'},
+            {name:'EDF Cervezas',code:'option 3'},
+            {name:'EDF Gaseosas',code:'option 4'},
+            {name:'Dispenser Gaseosas',code:'option 5'},
+            {name:'Gondola',code:'option 6'},
+            {name:'Camara de frio Cervezas',code:'option 7'},
+            {name:'otro',code:'option 8'}
+        ],            
         equipo:'',    
         clave:'extensis23435'   
         }
@@ -129,15 +151,15 @@ export default{
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="tipo">Tipo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="tipo"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="tipo"  :options="Tipo" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="PLOTEO">PLOTEO</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="PLOTEO"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="PLOTEO"  :options="PLOTEO" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="Marca">Marca</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="Marca"  :options="dropdownItems" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="Marca"  :options="Marca" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">

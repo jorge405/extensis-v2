@@ -12,7 +12,7 @@ export default{
             {name:'postergado',code:'option 2'},
             {name:'en proceso',code:'option 3'},
             {name:'cerrado S.S',code:'option 4'},
-        ],    
+        ], 
         Equipo:null,
         clave:'extensis23435'   
         }
