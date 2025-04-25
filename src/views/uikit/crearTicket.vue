@@ -23,28 +23,10 @@ export default{
             {name:'ciudad',code:'option 1'},
             {name:'provincia',code:'option 2'},
         ],
-        PLOTEO:[
-            {name:'pacena',code:'option 1'},
-            {name:'pepsi',code:'option 2'},
-            {name:'huari',code:'option 3'},
-            {name:'Prost',code:'option 4'},
-            {name:'H20',code:'option 5'}
-        ],
-        Marca:[
-            {name:'metalfrio',code:'option 1'},
-            {name:'imbera',code:'option 2'},
-            {name:'otro',code:'option 3'}
-        ],
-        Tipo:[
-            {name:'Choppera Cervezas',code:'101'},
-            {name:'Heladera Cerveza',code:'102'},
-            {name:'EDF Cervezas',code:'103'},
-            {name:'EDF Gaseosas',code:'104'},
-            {name:'Dispenser Gaseosas',code:'105'},
-            {name:'Gondola',code:'106'},
-            {name:'Camara de frio Cervezas',code:'107'},
-            {name:'otro',code:'108'}
-        ],
+        Modelo:null,
+        PLOTEO:null,
+        Marca:null,
+        Tipo:null,
         op_solicitada:'',            
         equipo:'', 
         servicio:'',   
@@ -54,8 +36,9 @@ export default{
     mounted(){
         this.getData();
         this.getRegionales();
-        this.getEquipo();
+        this.getEquipo(); 
         this.getServicio();
+        this.getTipo();
     },
     methods:{
         getData(){
@@ -69,7 +52,7 @@ export default{
                     
                     const data= response.data.entry;
                     this.regionales=data
-                    console.log(this.regionales)
+                    //console.log(this.regionales)
                 })
                 .catch(error=>{
                     console.log(error)                   
@@ -95,12 +78,34 @@ export default{
             try {
                 axios.get(`https://mittril.com/fusioA/public/index.php/tik_listado_servicio/${1}`)
                 .then(response=>{
-                    console.log(response.data.entry)
+                    //console.log(response.data.entry)
                     this.servicio=response.data.entry.filter(item=> item.op_realizada !== '');
-                    console.log(this.servicio)
+                    //console.log(this.servicio)
                     this.op_solicitada= response.data.entry.filter(item=> item.op_solicitada !== null)
-                    console.log(this.op_solicitada)
+                    //console.log(this.op_solicitada)
                 })
+            } catch (error) {
+                
+            }
+        },
+        getTipo(){
+            try {
+                axios.get('https://mittril.com/fusioA/public/index.php/tik_listado_tipo')
+                .then(response=>{
+                    //console.log(response.data.entry)
+                    this.Tipo=response.data.entry.map(item=> ({tipo:item.tipo})).filter(item=> item.tipo !=='otro')
+                    this.Modelo=response.data.entry.map(item=>({modelo:item.modelo}))
+                    this.Marca=response.data.entry.map(item=>({marca:item.marca})).filter(item=> item.marca !=='')
+                    this.PLOTEO=response.data.entry.map(item=>({PLOTEO:item.PLOTEO})).filter(item=> item.PLOTEO !=='')
+                    
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        crearTicket(){
+            try {
+                
             } catch (error) {
                 
             }
@@ -115,8 +120,10 @@ export default{
 <Fluid>
     <div class="flex mt-8">
             <div class="card flex flex-col gap-4 w-full">
+                <form method="POST">
                 <div class="font-semibold text-xl">Crear ticket</div>
                 <div class="flex flex-col md:flex-row gap-4">
+                    
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="firstname2">Usuario</label><i class="pi pi-user"></i>
                         <InputText id="firstname2" type="text" v-model="us" disabled />
@@ -168,21 +175,21 @@ export default{
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="tipo">Tipo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="tipo"  :options="Tipo" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="tipo"  :options="Tipo" optionLabel="tipo" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="PLOTEO">PLOTEO</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="PLOTEO"  :options="PLOTEO" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="PLOTEO"  :options="PLOTEO" optionLabel="PLOTEO" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="Marca">Marca</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="Marca"  :options="Marca" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="Marca"  :options="Marca" optionLabel="marca" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="modelo">Modelo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="modelo"  :options="equipo" optionLabel="modelo" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="modelo"  :options="Modelo" optionLabel="modelo" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="RG">Cod. RG</label><i class="pi pi-code"></i>
@@ -212,7 +219,8 @@ export default{
 
                 <div class="flex flex-wrap gap-2">
                     <Button label="Crear ticket" icon="pi pi-ticket" severity="success" raised />
-                </div>                
+                </div>  
+                </form>              
             </div>
         </div>
 
