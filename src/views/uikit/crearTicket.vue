@@ -12,6 +12,7 @@ export default{
         cod_fantasia:null,
         cod_equipo:null,
         cod_PDV:null, 
+        cod_regional:null,
         nombre_fantasia:null,
         ubicacion:null,
         dropdownItems:[
@@ -19,30 +20,38 @@ export default{
             { name: 'Option 2', code: 'Option 2' },
             { name: 'Option 3', code: 'Option 3' }
         ],  
-        estado_tik:[
+        estado_tik:'',
+        estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
             {name:'postergado',code:'option 2'},
             {name:'en proceso',code:'option 3'},
             {name:'cerrado S.S',code:'option 4'},
         ],
         regionales:null,
-        localidad:[
+        localidad_options:[
             {name:'ciudad',code:'option 1'},
             {name:'provincia',code:'option 2'},
         ],
+        localidad:null,
         Modelo:null,
+        modelo_captura:null,
         PLOTEO:null,
+        ploteo_captura:null,    
         Marca:null,
+        marca_captura:null, 
         COD_REG:null,
         RG_NUEVO:null,
         Tipo:null,
+        tipo_captura:null,
         nro_talonario:null,
         fecha_asignada:'',
         fecha_cs:null,
         fecha_ss:null,
         status:null,
-        descripcion:null,
-        op_solicitada:'',            
+        descripcion:'',
+        op_solicitada:'',
+        op_solicitada_captura:'',
+        op_realizada:'',            
         equipo:'', 
         servicio:'',   
         clave:'extensis23435'   
@@ -136,12 +145,11 @@ export default{
                 axios.post('https://mittril.com/fusioA/public/index.php/create_fantasia',{
                     us:us,
                     ps:ps,
-                    cod_PDV:this.cod_PDV,
+                    cod_PDV:parseInt(this.cod_PDV),
                     nombre_fantasia:this.nombre_fantasia,
                     ubicacion:this.ubicacion,
-                    localidad:this.localidad,
-                    cod_regional:this.cod_regional,
-                    cod_usuario:this.us
+                    localidad:this.localidad.name, 
+                    cod_regional:parseInt(this.cod_regional.cod_regional)
                 })
                 .then(response=>{
                     if (response.data.msg!=='creado') {
@@ -149,15 +157,16 @@ export default{
                     }
                      this.cod_fantasia=parseInt(response.data.id)
                      console.log(this.cod_fantasia)
+
                     //segunda peticion para crear el equipo
                 
                 return axios.post('https://mittril.com/fusioA/public/index.php/tik_create_equipo',{
                     us:us,
                     ps:ps,
-                    tipo:this.tipo,
-                    modelo:this.Modelo,
-                    marca:this.Marca,
-                    PLOTEO:this.PLOTEO,
+                    tipo:this.tipo_captura.tipo,
+                    modelo:this.modelo_captura.modelo,
+                    marca:this.marca_captura.marca,
+                    PLOTEO:this.ploteo_captura.PLOTEO,
                     COD_REG:this.COD_REG,
                     RG_NUEVO:this.RG_NUEVO,
                     cod_usuario:this.us
@@ -173,25 +182,25 @@ export default{
                 return axios.post('https://mittril.com/fusioA/public/index.php/tik_create_tik',{
                     us:us,
                     ps:ps,
-                    cod_PDV:this.cod_fantasia,
-                    cod_equipo:this.cod_equipo,
+                    cod_PDV:parseInt(this.cod_fantasia),
+                    cod_equipo:parseInt(this.cod_equipo),
                     cod_transporte:null,
                     cod_usuario:this.us,
-                    nro_talonario:this.nro_talonario,
+                    nro_talonario:parseInt(this.nro_talonario),
                     fecha_creacion:fecha_formateada,
                     fecha_asignada:fecha_formateada,
                     fecha_cs:null,
                     fecha_ss:null,
                     status:null,
-                    estado_tik:this.estado_tik,
+                    estado_tik:this.estado_tik.name,
                     precio_servicio:null,
                     status_temp:null,
                     cobro:null,
                     dias_plazo:null,
                     resolucion:null,
                     postergacion:null,
-                    op_solicitadad:this.op_solicitada,
-                    op_realizada:this.op_realizada,
+                    op_solicitadad:this.op_solicitada_captura.op_solicitada,
+                    op_realizada:this.op_realizada.op_realizada,
                     descripcion:this.descripcion,
                     canal:null,
                     carga_masiva:null,
@@ -229,10 +238,12 @@ export default{
         
     },
     watch:{
-        
+        cod_regional(newval){
+            console.log(newval.cod_regional)
+        }
     }
 }
-
+ 
 </script>
 
 <template>
@@ -256,7 +267,7 @@ export default{
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="estado">Estado ticket</label><i class="pi pi-arrows-h"></i>
-                        <Select id="estado"  :options="estado_tik" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="estado"  :options="estado_tik_options" optionLabel="name" v-model="estado_tik" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="phone">Fecha(asignado)</label><i class="pi pi-calendar"></i>
@@ -274,11 +285,11 @@ export default{
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="regional">Regional</label><i class="pi pi-sitemap"></i>
-                        <Select id="regional"  :options="regionales" optionLabel="regional" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="regional"  :options="regionales" optionLabel="regional" v-model="cod_regional" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="localidad">Localidad</label><i class="pi pi-sitemap"></i>
-                        <Select id="localidad"  :options="localidad" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="localidad"  :options="localidad_options" optionLabel="name" v-model="localidad" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
@@ -288,27 +299,27 @@ export default{
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="fantasia">Nom. Fantansia</label><i class="pi pi-users"></i>
-                        <InputText id="fantasia" type="text"  />
+                        <InputText id="fantasia" type="text" v-model="nombre_fantasia"  />
                     </div>
                 </div>
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="tipo">Tipo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="tipo"  :options="Tipo" optionLabel="tipo" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="tipo"  :options="Tipo" optionLabel="tipo" v-model="tipo_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="PLOTEO">PLOTEO</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="PLOTEO"  :options="PLOTEO" optionLabel="PLOTEO" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="PLOTEO"  :options="PLOTEO" optionLabel="PLOTEO" v-model="ploteo_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="Marca">Marca</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="Marca"  :options="Marca" optionLabel="marca" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="Marca"  :options="Marca" optionLabel="marca" v-model="marca_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="modelo">Modelo</label><i class="pi pi-arrow-circle-down"></i>
-                        <Select id="modelo"  :options="Modelo" optionLabel="modelo" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="modelo"  :options="Modelo" optionLabel="modelo" v-model="modelo_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="RG">Cod. RG</label><i class="pi pi-code"></i>
@@ -318,11 +329,11 @@ export default{
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="solicitada">Op. Solicitada</label><i class="pi pi-wrench"></i>
-                        <Select id="solicitada"  :options="op_solicitada" optionLabel="op_solicitada" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="solicitada"  :options="op_solicitada" optionLabel="op_solicitada" v-model="op_solicitada_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="reliazada">Op. Realizada</label><i class="pi pi-wrench"></i>
-                        <Select id="realizada"  :options="servicio" optionLabel="op_realizada" placeholder="Selecciona" class="w-full"></Select>
+                        <Select id="realizada"  :options="servicio" optionLabel="op_realizada" v-model="op_realizada" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-1 gap-2">
