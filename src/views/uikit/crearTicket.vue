@@ -2,11 +2,18 @@
 import axios from 'axios';
 import cryptoJS from 'crypto-js';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 export default{
     data(){
         return{
         us:'',
-        nombre:'',    
+        ps:'',
+        nombre:'', 
+        cod_fantasia:null,
+        cod_equipo:null,
+        cod_PDV:null, 
+        nombre_fantasia:null,
+        ubicacion:null,
         dropdownItems:[
             { name: 'Option 1', code: 'Option 1' },
             { name: 'Option 2', code: 'Option 2' },
@@ -26,7 +33,15 @@ export default{
         Modelo:null,
         PLOTEO:null,
         Marca:null,
+        COD_REG:null,
+        RG_NUEVO:null,
         Tipo:null,
+        nro_talonario:null,
+        fecha_asignada:'',
+        fecha_cs:null,
+        fecha_ss:null,
+        status:null,
+        descripcion:null,
         op_solicitada:'',            
         equipo:'', 
         servicio:'',   
@@ -104,14 +119,118 @@ export default{
             }
         },
         crearTicket(){
+            const us= cryptoJS.AES.decrypt(Cookies.get('us'),this.clave).toString(cryptoJS.enc.Utf8);   
+            const ps= cryptoJS.AES.decrypt(Cookies.get('pass'),this.clave).toString(cryptoJS.enc.Utf8);
+            
+                // Convertir fecha_asignada de 'dd/mm/aaaa' a 'aaaa/mm/dd'
+                    let fecha_formateada = null;
+                    if (this.fecha_asignada instanceof Date) {
+                        const anio = this.fecha_asignada.getFullYear();
+                        const mes = String(this.fecha_asignada.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+                        const dia = String(this.fecha_asignada.getDate()).padStart(2, '0');
+                        fecha_formateada = `${anio}/${mes}/${dia}`;
+                    }
+                    console.log(fecha_formateada)
             try {
+                // creando la tabla fantasia
+                axios.post('https://mittril.com/fusioA/public/index.php/create_fantasia',{
+                    us:us,
+                    ps:ps,
+                    cod_PDV:this.cod_PDV,
+                    nombre_fantasia:this.nombre_fantasia,
+                    ubicacion:this.ubicacion,
+                    localidad:this.localidad,
+                    cod_regional:this.cod_regional,
+                    cod_usuario:this.us
+                })
+                .then(response=>{
+                    if (response.data.msg!=='creado') {
+                        return Promise.reject(new Error('Error al crear fantasia'));
+                    }
+                     this.cod_fantasia=parseInt(response.data.id)
+                     console.log(this.cod_fantasia)
+                    //segunda peticion para crear el equipo
                 
+                return axios.post('https://mittril.com/fusioA/public/index.php/tik_create_equipo',{
+                    us:us,
+                    ps:ps,
+                    tipo:this.tipo,
+                    modelo:this.Modelo,
+                    marca:this.Marca,
+                    PLOTEO:this.PLOTEO,
+                    COD_REG:this.COD_REG,
+                    RG_NUEVO:this.RG_NUEVO,
+                    cod_usuario:this.us
+                })
+            })
+                .then(response=>{
+                    if (response.data.msg!=='creado') {
+                        return Promise.reject(new Error('Error al crear el equipo'));
+                    }
+
+                    this.cod_equipo=parseInt(response.data.id)
+                    console.log(this.cod_equipo)
+                return axios.post('https://mittril.com/fusioA/public/index.php/tik_create_tik',{
+                    us:us,
+                    ps:ps,
+                    cod_PDV:this.cod_fantasia,
+                    cod_equipo:this.cod_equipo,
+                    cod_transporte:null,
+                    cod_usuario:this.us,
+                    nro_talonario:this.nro_talonario,
+                    fecha_creacion:fecha_formateada,
+                    fecha_asignada:fecha_formateada,
+                    fecha_cs:null,
+                    fecha_ss:null,
+                    status:null,
+                    estado_tik:this.estado_tik,
+                    precio_servicio:null,
+                    status_temp:null,
+                    cobro:null,
+                    dias_plazo:null,
+                    resolucion:null,
+                    postergacion:null,
+                    op_solicitadad:this.op_solicitada,
+                    op_realizada:this.op_realizada,
+                    descripcion:this.descripcion,
+                    canal:null,
+                    carga_masiva:null,
+                    estado_int:1
+                })
+                })
+                .then(response=>{
+                    if(response.data.msg==='creado'){
+                        Swal.fire({
+                            text:'ticket creado correctamente',
+                            title:'extensis',
+                            icon:'success',
+                            timer:1500
+                        })
+                    }else{
+                        Swal.fire({
+                            text:'error al crear el ticket',
+                            title:'extensis',
+                            icon:'error',
+                            timer:1500
+                        })
+                    }
+                })
+
             } catch (error) {
-                
+                console.log('ha ocurrido un error', error)
+                Swal.fire({
+                    text:'error problemas con el servidor',
+                    title:'extensis',
+                    icon:'error',
+                    timer:1500
+                })
             }
-        }
+        },
+        
     },
-    
+    watch:{
+        
+    }
 }
 
 </script>
@@ -141,17 +260,17 @@ export default{
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="phone">Fecha(asignado)</label><i class="pi pi-calendar"></i>
-                        <DatePicker :showIcon="true" :showButtonBar="true" v-model="calendarValue"></DatePicker>
+                        <DatePicker :showIcon="true" :showButtonBar="true" v-model="fecha_asignada"></DatePicker>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="phone">Fecha(Cerrado)</label><i class="pi pi-calendar"></i>
-                        <DatePicker :showIcon="true" :showButtonBar="true" v-model="calendarValue"></DatePicker>
+                        <DatePicker :showIcon="true" :showButtonBar="true" v-model="fecha_cerrado"></DatePicker>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="talonario">NRO. Talonario</label><i class="pi pi-hashtag"></i>
-                        <InputText id="talonario" type="text"  />
+                        <InputText id="talonario" type="text" v-model="nro_talonario"  />
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="regional">Regional</label><i class="pi pi-sitemap"></i>
@@ -165,7 +284,7 @@ export default{
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="PDV">Cod PDV</label><i class="pi pi-hashtag"></i>
-                        <InputText id="PDV" type="text"  />
+                        <InputText id="PDV" type="text" v-model="cod_PDV"  />
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="fantasia">Nom. Fantansia</label><i class="pi pi-users"></i>
@@ -193,7 +312,7 @@ export default{
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="RG">Cod. RG</label><i class="pi pi-code"></i>
-                        <InputText id="RG" type="text"  />
+                        <InputText id="RG" type="text" v-model="COD_REG"  />
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
@@ -214,11 +333,11 @@ export default{
                 </div>
                 <div class="flex flex-wrap">
                     <label for="descripcion">Descripcion</label>
-                    <Textarea id="descripcion" rows="4"/>
+                    <Textarea id="descripcion" v-model="descripcion" rows="4"/>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <Button label="Crear ticket" icon="pi pi-ticket" severity="success" raised />
+                    <Button label="Crear ticket" icon="pi pi-ticket" severity="success" @click="crearTicket" raised />
                 </div>  
                 </form>              
             </div>
