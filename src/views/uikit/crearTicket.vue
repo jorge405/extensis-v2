@@ -15,6 +15,7 @@ export default{
         cod_regional:null,
         nombre_fantasia:null,
         ubicacion:null,
+        errores:{},
         dropdownItems:[
             { name: 'Option 1', code: 'Option 1' },
             { name: 'Option 2', code: 'Option 2' },
@@ -127,7 +128,7 @@ export default{
                 console.log(error)
             }
         },
-        crearTicket(){
+        crearTicketOld(){
             const us= cryptoJS.AES.decrypt(Cookies.get('us'),this.clave).toString(cryptoJS.enc.Utf8);   
             const ps= cryptoJS.AES.decrypt(Cookies.get('pass'),this.clave).toString(cryptoJS.enc.Utf8);
             
@@ -235,12 +236,132 @@ export default{
                 })
             }
         },
-        
+        async crearTicket(){
+            const us = cryptoJS.AES.decrypt(Cookies.get('us'), this.clave).toString(cryptoJS.enc.Utf8);
+            const ps = cryptoJS.AES.decrypt(Cookies.get('pass'), this.clave).toString(cryptoJS.enc.Utf8);
+
+            // Convertir fecha_asignada de 'dd/mm/aaaa' a 'aaaa/mm/dd'
+            let fecha_formateada = null;
+            if (this.fecha_asignada instanceof Date) {
+                const anio = this.fecha_asignada.getFullYear();
+                const mes = String(this.fecha_asignada.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+                const dia = String(this.fecha_asignada.getDate()).padStart(2, '0');
+                fecha_formateada = `${anio}/${mes}/${dia}`;
+            }
+            console.log(fecha_formateada);
+            try {
+                // crear oa tabla fantasia
+            const fantasiaResponse = await axios.post('https://mittril.com/fusioA/public/index.php/tik_create_fantasia',{
+                us:us,
+                ps:ps,
+                cod_PDV:parseInt(this.cod_PDV),
+                nombre_fantasia:this.nombre_fantasia,
+                ubicacion:this.ubicacion,
+                localidad:this.localidad.name,
+                cod_regional:parseInt(this.cod_regional.cod_regional) 
+            })
+            if(fantasiaResponse.data.msg!=='creado'){
+                throw new Error('Error al crear fantasia');
+            }
+            this.cod_fantasia=parseInt(fantasiaResponse.data.id);
+            console.log(this.cod_fantasia);
+
+            // crear el equipo
+            const equipoResponse= await axios.post('https://mittril.com/fusioA/public/index.php/tik_create_equipo',{
+                us: us,
+                ps: ps,
+                tipo: this.tipo_captura.tipo,
+                modelo: this.modelo_captura.modelo,
+                marca: this.marca_captura.marca,
+                PLOTEO: this.ploteo_captura.PLOTEO,
+                COD_REG: this.COD_REG,
+                RG_NUEVO: this.RG_NUEVO,
+                cod_usuario: this.us
+            })
+            if(equipoResponse.data.msg!=='creado'){
+                throw new Error('Error al crear el equipo');
+            }
+            this.cod_equipo=parseInt(equipoResponse.data.id);
+            console.log(this.cod_equipo);
+            // crear el ticket
+            const ticketResponse = await axios.post('https://mittril.com/fusioA/public/index.php/tik_create_tik', {
+            us: us,
+            ps: ps,
+            cod_PDV: parseInt(this.cod_fantasia),
+            cod_equipo: parseInt(this.cod_equipo),
+            cod_transporte: null,
+            cod_usuario: this.us,
+            nro_talonario: parseInt(this.nro_talonario),
+            fecha_creacion: fecha_formateada,
+            fecha_asignada: fecha_formateada,
+            fecha_cs: null,
+            fecha_ss: null,
+            status: null,
+            estado_tik: this.estado_tik.name,
+            precio_servicio: null,
+            status_temp: null,
+            cobro: null,
+            dias_plazo: null,
+            resolucion: null,
+            postergacion: null,
+            op_solicitada: this.op_solicitada_captura.op_solicitada,
+            op_realizada: this.op_realizada.op_realizada,
+            descripcion: this.descripcion,
+            canal: null,
+            carga_masiva: null,
+            estado_int: 1,
+        });
+        if(ticketResponse.data.msg==='creado'){
+            Swal.fire({
+                text:'ticket creado correctamente',
+                title:'extensis',
+                timer:1500,
+                icon:'success'   
+            })
+        }else{
+            Swal.fire({
+                text:'error al crear el ticket',
+                title:'extensis',
+                icon:'error',
+                timer:1500
+            })
+        }
+            } catch (error) {
+                console.log('ha ocurrido un error', error);
+                Swal.fire({
+                    text: 'error problemas con el servidor',
+                    title: 'extensis',
+                    icon: 'error',
+                    timer: 1500
+                });                
+            }
+        }
     },
     watch:{
-        cod_regional(newval){
-            console.log(newval.cod_regional)
+        nro_talonario(newval){
+            if(!newval){
+                this.errores.nro_talonario='el campo no puede estar vacio'
+            }else{
+                delete this.errores.nro_talonario;
+            }
+        },
+        cod_PDV(newval){
+            if(!newval){
+                this.errores.cod_PDV='el campo no puede estar vacio'
+            }else if(typeof newval !=='number'){
+                this.errores.cod_PDV='el campo solo acepta numeros'
+            }else{
+                delete this.errores.cod_PDV;
+            }
+        },
+        nombre_fantasia(newval){
+            if(!newval){
+                this.errores.nombre_fantasia='el campo no puede estar vacio'
+            }else{
+                delete this.errores.nombre_fantasia;
+            }
         }
+
     }
 }
  
@@ -282,6 +403,7 @@ export default{
                     <div class=" space-y-2 w-full">
                         <label for="talonario">NRO. Talonario</label><i class="pi pi-hashtag"></i>
                         <InputText id="talonario" type="text" v-model="nro_talonario"  />
+                        <span v-if="errores.nro_talonario" class=" text-sm font-semibold text-red-700">{{ errores.nro_talonario }}</span>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="regional">Regional</label><i class="pi pi-sitemap"></i>
@@ -296,10 +418,12 @@ export default{
                     <div class=" space-y-2 w-full">
                         <label for="PDV">Cod PDV</label><i class="pi pi-hashtag"></i>
                         <InputText id="PDV" type="text" v-model="cod_PDV"  />
+                        <span v-if="errores.cod_PDV" class=" text-sm font-semibold text-red-700">{{ errores.cod_PDV }}</span>
                     </div>
                     <div class="space-y-2  w-full">
                         <label for="fantasia">Nom. Fantansia</label><i class="pi pi-users"></i>
                         <InputText id="fantasia" type="text" v-model="nombre_fantasia"  />
+                        <span v-if="errores.nombre_fantasia" class=" text-sm font-semibold text-red-700">{{ errores.nombre_fantasia }}</span>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">

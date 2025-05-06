@@ -100,8 +100,7 @@ export default{
                 </div>
             <!-- tabla lista de equipos-->
             <div class="card flex flex-col gap-4 w-full">
-                
-                    <div class="font-semibold text-xl mb-4">Lista Equipos</div>
+                <div class="font-semibold text-xl mb-4">Lista Equipos</div>
         <DataTable
             :value="Equipo"
             :paginator="true"
