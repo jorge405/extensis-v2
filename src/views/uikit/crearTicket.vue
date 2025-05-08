@@ -142,6 +142,8 @@ export default{
                     }
                     console.log(fecha_formateada)
             try {
+
+                
                 // creando la tabla fantasia
                 axios.post('https://mittril.com/fusioA/public/index.php/create_fantasia',{
                     us:us,

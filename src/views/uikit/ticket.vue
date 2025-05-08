@@ -90,8 +90,9 @@ export default{
             </Column>
             <Column header="Estado"  style="min-width: 14rem">
                 <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                        <button class=" bg-orange-500 rounded-md p-2 text-white">{{ data.estado_tik }}</button>
+                    <div class="items-center gap-2">
+                        <div class=" bg-orange-500 rounded-md p-2 text-white w-1/2">{{ data.estado_tik }}</div>
+                        <p class=" text-sm">Ticket: {{ data.cod_ticket }}</p>
                     </div>
                 </template>
                 <!--<template #filter="{ filterModel }">
@@ -174,7 +175,7 @@ export default{
             <Column header="Acciones"  style="min-width: 12rem">
                 <template #body="">
                     <div class="flex items-center gap-2">
-                        <span></span>
+                        <button class=" bg-slate-700 p-4 rounded-md">Detalles <i class="pi pi-window-maximize"></i></button>
                     </div>
                 </template>
                 <!--<template #filter="{ filterModel }">
