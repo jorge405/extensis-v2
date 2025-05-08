@@ -3,14 +3,15 @@ import axios from 'axios';
 export default{
     data(){
         return{
-        
+        estado_tik:'',
         estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
             {name:'postergado',code:'option 2'},
             {name:'en proceso',code:'option 3'},
             {name:'cerrado S.S',code:'option 4'},
         ],
-        ticket:null,   
+        ticket:null,
+        filtrado_estado:null,   
         }
     },
     mounted(){
@@ -21,6 +22,7 @@ export default{
             try {
                 const response= await axios.get('https://mittril.com/fusioA/public/index.php/tik_list_ticket')
                 console.log(response.data.entry)
+                console.log(new Date())
                 this.ticket=response.data.entry;
             } catch (error) {
                 console.log(error);
@@ -29,8 +31,36 @@ export default{
         toggleDropdown(ticketId) {
             // Alternar la visibilidad del dropdown para la fila específica
             this.$set(this.dropdownVisible, ticketId, !this.dropdownVisible[ticketId]);
+        }, 
+        getTranscurrido(fechaAsignada) {
+            // Lógica para calcular el tiempo transcurrido
+            const fecha= new Date(fechaAsignada);
+            const fechaActual = new Date();
+            
+            const diffTime = fechaActual - fecha;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+            
+        },
+    },
+    computed:{
+        filtrado_estadotik(){
+            console.log(this.estado_tik.name)
+
+            
+            const filtrado= this.ticket.filter((item) => item.estado_tik === this.estado_tik.name);
+            this.filtrado_estado=filtrado;
+            console.log(this.filtrado_estado)
+
+        }
+    },
+    watch:{
+        estado_tik(newValue) {
+            // Lógica para filtrar la tabla según el nuevo valor de estado_tik
+            this.filtrado_estadotik;
         },
     }
+    
 }
 
 </script>
@@ -40,12 +70,12 @@ export default{
 <div class="card flex flex-col gap-4 w-full">
     <div class="w-1/5 flex flex-col gap-4">
         <label for="estado" class=" font-semibold text-xl">Estado:</label>
-        <Select id="estado"  :options="estado_tik_options" optionLabel="name" placeholder="Selecciona" class="w-full"></Select>
+        <Select id="estado"  :options="estado_tik_options" optionLabel="name" v-model="estado_tik" placeholder="Selecciona" class="w-full"></Select>
     </div>
     <div class=" flex-grow"></div>
     <div class="font-semibold text-xl mb-4">Lista Tickets</div>
         <DataTable
-            :value="ticket"
+            :value="filtrado_estado ? filtrado_estado : ticket"
             :paginator="true"
             :rows="10"
             dataKey="cod_ticket"
@@ -70,7 +100,7 @@ export default{
             <Column header="Estado"  style="min-width: 14rem">
                 <template #body="{ data }">
                     <div class="items-center gap-2">
-                        <div class=" rounded-md p-2 text-white w-1/2" :class=" data.estado_tik ==='cerrado S.S' ? 'bg-orange-500' : 'bg-sky-600'">{{ data.estado_tik }}</div>
+                        <div class=" rounded-md p-2 text-white w-1/2" :class=" data.estado_tik ==='cerrado S.S' ? 'bg-green-700' : data.estado_tik==='postergado' ? 'bg-orange-500' : data.estado_tik==='en proceso' ? 'bg-sky-600' : 'bg-green-700'">{{ data.estado_tik }}</div>
                         <p class=" text-sm">Ticket: {{ data.cod_ticket }}</p>
                     </div>
                 </template>
@@ -189,7 +219,7 @@ export default{
             <Column header="Acciones"  style="min-width: 12rem">
                 <template #body="">
                     <div class="flex items-center gap-2">
-                        <button class=" bg-slate-700 p-4 rounded-md">Detalles <i class="pi pi-window-maximize"></i></button>
+                        <button class=" bg-slate-700 p-4 rounded-md text-white">Detalles <i class="pi pi-window-maximize"></i></button>
                         
                     </div>
                 </template>
@@ -221,9 +251,12 @@ export default{
                 </template>-->
             </Column>
             <Column header="Transcurrido"  style="min-width: 12rem">
-                <template #body="">
-                    <div class="flex items-center gap-2">
-                        <span></span>
+                <template #body="{ data }">
+                    <div class="items-center gap-2">
+                        
+                        <span v-if="getTranscurrido(data.fecha_asignada)> 0" class=" text-green-500 font-bold">{{ getTranscurrido(data.fecha_asignada) }} dias</span>
+                        <span v-else-if="getTranscurrido(data.fecha_asignada)=== 0" class="text-yellow-500 font-bold">{{ getTranscurrido(data.fecha_asignada) }} dias</span>
+                        <span v-else class="text-red-500 font-bold">Atrasado</span>
                     </div>
                 </template>
                 <!--<template #filter="{ filterModel }">

@@ -329,7 +329,7 @@ export default{
             })
         }
             } catch (error) {
-                console.log('ha ocurrido un error', error);
+                console.log('ha ocurrido un error', error); 
                 Swal.fire({
                     text: 'error problemas con el servidor',
                     title: 'extensis',
