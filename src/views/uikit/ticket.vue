@@ -3,7 +3,7 @@ import axios from 'axios';
 export default{
     data(){
         return{
-        op: null,   
+        display:false,
         estado_tik:'',
         estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
@@ -12,12 +12,14 @@ export default{
             {name:'cerrado S.S',code:'option 4'},
         ],
         ticket:null,
-        filtrado_estado:null,   
-        } 
+        filtrado_estado:null,
+        listUser:null   
+        }
+        
     },
     mounted(){
         this.getTicket();
-        
+        this.op=this.$refs.op;
     },  
     methods:{
         async getTicket(){
@@ -52,19 +54,28 @@ export default{
                         const fecha_formateada = `${anio}/${mes}/${dia}`;
                         return fecha_formateada;
         },
-        toggleDataTable(event) {
-            this.op.toggle(event);
+        open(){
+            this.display = true;
+            this.getListUser();
         },
+        close(){
+            this.display = false;
+        },
+        async getListUser(){
+            try {
+                const response = await axios.get(`https://mittril.com/fusioA/public/index.php/tik_list_usuario/OPERADOR`)
+                console.log(response.data.entry)
+                this.listUser=response.data.entry;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        
     },
     computed:{
         filtrado_estadotik(){
-            console.log(this.estado_tik.name)
-
-            
             const filtrado= this.ticket.filter((item) => item.estado_tik === this.estado_tik.name);
             this.filtrado_estado=filtrado;
-            console.log(this.filtrado_estado)
-
         },
         
     },
@@ -233,7 +244,7 @@ export default{
             <Column header="Acciones"  style="min-width: 12rem">
                 <template #body="">
                     <div class="flex items-center gap-2">
-                        <button class="bg-yellow-500 p-4 rounded-md text-white" @click="toggleDataTable">Aprobar <i class="pi pi-check"></i></button>
+                        <button class="bg-yellow-500 p-4 rounded-md text-white" @click="open">Aprobar <i class="pi pi-check"></i></button>
                         <button class=" bg-slate-700 p-4 rounded-md text-white">Detalles <i class="pi pi-window-maximize"></i></button>
                     </div>
                 </template>
@@ -247,27 +258,28 @@ export default{
                     <Button type="button" icon="pi pi-check" @click="filterCallback()" severity="success"></Button>
                 </template>-->
             </Column>
-            <div class="card">
-                <div class="font-semibold text-xl mb-4">Popover</div>
-                <div class="flex flex-wrap gap-2">
-                    <Popover ref="op" id="overlay_panel" style="width: 450px">
-                        <!--<DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" @row-select="onProductSelect">
-                            <Column field="name" header="Name" sortable style="min-width: 12rem"></Column>
-                            <Column header="Image">
-                                <template #body="slotProps">
-                                    <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" class="w-16 shadow-sm" />
+            <div class="card">                
+                <Dialog header="Aprobar Ticket" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                    <h3 class=" font-bold text-xl">Lista operadores</h3>
+                    <hr class=" bg-green-600">
+                    <DataTable  :value="listUser" selectionMode="single" :paginator="true" :rows="5" >
+                            <Column header="Nombre">
+                                <template #body="slotProps">{{ slotProps.data.nombre }}</template>
+                            </Column>
+                            <Column header="Tipo">
+                                <template #body="slotProps">{{ slotProps.data.tipo }}</template>
+                            </Column>
+                            <Column header="Asignar">
+                                <template #body="">
+                                    <Button icon="pi pi-user" severity="info" rounded />
                                 </template>
                             </Column>
-                            <Column field="price" header="Price" sortable style="min-width: 8rem">
-                                <template #body="slotProps"> $ {{ slotProps.data.price }} </template>
-                            </Column>
-                        </DataTable>-->
-                        <p class="leading-normal m-0">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                    </p>
-                    </Popover>
-                </div>
+                    </DataTable>
+                    <template #footer>
+                        <Button severity="info" label="Aprobar"  @click="close"></Button>
+                        <Button severity="danger" label="Cancelar"  @click="close" />
+                    </template>
+                </Dialog>
             </div>
             <Column header="Aprobado"  style="min-width: 12rem">
                 <template #body="{ data }">

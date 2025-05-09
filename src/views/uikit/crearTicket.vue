@@ -292,7 +292,7 @@ export default{
             cod_PDV: parseInt(this.cod_fantasia),
             cod_equipo: parseInt(this.cod_equipo),
             cod_transporte: null,
-            cod_usuario: this.us,
+            cod_usuario:us,
             nro_talonario: parseInt(this.nro_talonario),
             fecha_creacion: fecha_formateada,
             fecha_asignada: fecha_formateada,
