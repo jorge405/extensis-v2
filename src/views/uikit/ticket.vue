@@ -3,6 +3,7 @@ import axios from 'axios';
 export default{
     data(){
         return{
+        op: null,   
         estado_tik:'',
         estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
@@ -12,17 +13,18 @@ export default{
         ],
         ticket:null,
         filtrado_estado:null,   
-        }
+        } 
     },
     mounted(){
         this.getTicket();
+        
     },  
     methods:{
         async getTicket(){
             try {
                 const response= await axios.get('https://mittril.com/fusioA/public/index.php/tik_list_ticket')
                 console.log(response.data.entry)
-                console.log(new Date())
+                
                 this.ticket=response.data.entry;
             } catch (error) {
                 console.log(error);
@@ -36,11 +38,22 @@ export default{
             // Lógica para calcular el tiempo transcurrido
             const fecha= new Date(fechaAsignada);
             const fechaActual = new Date();
-            
+            console.log(fechaActual)
             const diffTime = fechaActual - fecha;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
             
+        },
+        aprobar(){
+            const fecha_actual = new Date();
+                        const anio = fecha_actual.getFullYear();
+                        const mes = String(fecha_actual.getMonth() + 1).padStart(2, '0'); // Mes empieza en 0
+                        const dia = String(fecha_actual.getDate()).padStart(2, '0');
+                        const fecha_formateada = `${anio}/${mes}/${dia}`;
+                        return fecha_formateada;
+        },
+        toggleDataTable(event) {
+            this.op.toggle(event);
         },
     },
     computed:{
@@ -52,7 +65,8 @@ export default{
             this.filtrado_estado=filtrado;
             console.log(this.filtrado_estado)
 
-        }
+        },
+        
     },
     watch:{
         estado_tik(newValue) {
@@ -219,8 +233,8 @@ export default{
             <Column header="Acciones"  style="min-width: 12rem">
                 <template #body="">
                     <div class="flex items-center gap-2">
+                        <button class="bg-yellow-500 p-4 rounded-md text-white" @click="toggleDataTable">Aprobar <i class="pi pi-check"></i></button>
                         <button class=" bg-slate-700 p-4 rounded-md text-white">Detalles <i class="pi pi-window-maximize"></i></button>
-                        
                     </div>
                 </template>
                 <!--<template #filter="{ filterModel }">
@@ -233,7 +247,28 @@ export default{
                     <Button type="button" icon="pi pi-check" @click="filterCallback()" severity="success"></Button>
                 </template>-->
             </Column>
-
+            <div class="card">
+                <div class="font-semibold text-xl mb-4">Popover</div>
+                <div class="flex flex-wrap gap-2">
+                    <Popover ref="op" id="overlay_panel" style="width: 450px">
+                        <!--<DataTable v-model:selection="selectedProduct" :value="products" selectionMode="single" :paginator="true" :rows="5" @row-select="onProductSelect">
+                            <Column field="name" header="Name" sortable style="min-width: 12rem"></Column>
+                            <Column header="Image">
+                                <template #body="slotProps">
+                                    <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`" :alt="slotProps.data.image" class="w-16 shadow-sm" />
+                                </template>
+                            </Column>
+                            <Column field="price" header="Price" sortable style="min-width: 8rem">
+                                <template #body="slotProps"> $ {{ slotProps.data.price }} </template>
+                            </Column>
+                        </DataTable>-->
+                        <p class="leading-normal m-0">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                    </p>
+                    </Popover>
+                </div>
+            </div>
             <Column header="Aprobado"  style="min-width: 12rem">
                 <template #body="{ data }">
                     <div class="flex items-center gap-2">
@@ -270,9 +305,9 @@ export default{
                 </template>-->
             </Column>
             <Column header="Atencion aprox."  style="min-width: 12rem">
-                <template #body="">
+                <template #body="{ data}">
                     <div class="flex items-center gap-2">
-                        <span></span>
+                        <span>{{ data.fecha_asignada }}</span>
                     </div>
                 </template>
                 <!--<template #filter="{ filterModel }">
