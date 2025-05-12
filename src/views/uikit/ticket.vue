@@ -1,10 +1,13 @@
 <script>
 import axios from 'axios';
+
+
 export default{
     data(){
         return{
         display:false,
         estado_tik:'',
+        selectedUser:null,
         estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
             {name:'postergado',code:'option 2'},
@@ -13,7 +16,7 @@ export default{
         ],
         ticket:null,
         filtrado_estado:null,
-        listUser:null   
+        listUser:null
         }
         
     },
@@ -69,6 +72,9 @@ export default{
             } catch (error) {
                 console.log(error);
             }
+        },
+        userSelected(){
+            
         }
         
     },
@@ -84,6 +90,10 @@ export default{
             // Lógica para filtrar la tabla según el nuevo valor de estado_tik
             this.filtrado_estadotik;
         },
+        selectedUser(newval){
+            console.log(newval)
+            this.userSelected();
+        }
     }
     
 }
@@ -262,7 +272,7 @@ export default{
                 <Dialog header="Aprobar Ticket" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                     <h3 class=" font-bold text-xl">Lista operadores</h3>
                     <hr class=" bg-green-600">
-                    <DataTable  :value="listUser" selectionMode="single" :paginator="true" :rows="5" >
+                    <DataTable v-model:selection="selectedUser"  :value="listUser" selectionMode="single" :paginator="true" :rows="5" >
                             <Column header="Nombre">
                                 <template #body="slotProps">{{ slotProps.data.nombre }}</template>
                             </Column>
