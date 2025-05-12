@@ -293,6 +293,7 @@ export default{
             cod_equipo: parseInt(this.cod_equipo),
             cod_transporte: null,
             cod_usuario:us,
+            asignado:null,
             nro_talonario: parseInt(this.nro_talonario),
             fecha_creacion: fecha_formateada,
             fecha_asignada: fecha_formateada,

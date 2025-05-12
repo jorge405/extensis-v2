@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios';
+
 export default{
     data(){
         return{
@@ -13,7 +14,8 @@ export default{
         ],
         ticket:null,
         filtrado_estado:null,
-        listUser:null   
+        listUser:null,
+        userSelected:null,   
         }
         
     },
@@ -54,9 +56,10 @@ export default{
                         const fecha_formateada = `${anio}/${mes}/${dia}`;
                         return fecha_formateada;
         },
-        open(){
+        open(seleccionado){
             this.display = true;
             this.getListUser();
+            console.log(seleccionado)
         },
         close(){
             this.display = false;
@@ -69,7 +72,15 @@ export default{
             } catch (error) {
                 console.log(error);
             }
-        }
+        },
+        mensaje(){
+            this.$toast.add({
+                severity:'info',
+                summary:'Ticket',
+                detail:`usuario: ${this.userSelected.nombre} asignado al ticket`,
+                life:3000
+            })
+        },
         
     },
     computed:{
@@ -84,6 +95,10 @@ export default{
             // Lógica para filtrar la tabla según el nuevo valor de estado_tik
             this.filtrado_estadotik;
         },
+        userSelected(newval) {
+            // Lógica para manejar el cambio en userSelected
+            this.mensaje()
+        }
     }
     
 }
@@ -242,9 +257,9 @@ export default{
                 </template>-->
             </Column>
             <Column header="Acciones"  style="min-width: 12rem">
-                <template #body="">
+                <template #body="data">
                     <div class="flex items-center gap-2">
-                        <button class="bg-yellow-500 p-4 rounded-md text-white" @click="open">Aprobar <i class="pi pi-check"></i></button>
+                        <button class="bg-yellow-500 p-4 rounded-md text-white" @click="open(data)">Aprobar <i class="pi pi-check"></i></button>
                         <button class=" bg-slate-700 p-4 rounded-md text-white">Detalles <i class="pi pi-window-maximize"></i></button>
                     </div>
                 </template>
@@ -262,7 +277,7 @@ export default{
                 <Dialog header="Aprobar Ticket" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                     <h3 class=" font-bold text-xl">Lista operadores</h3>
                     <hr class=" bg-green-600">
-                    <DataTable  :value="listUser" selectionMode="single" :paginator="true" :rows="5" >
+                    <DataTable  :value="listUser" v-model:selection="userSelected" selectionMode="single" :paginator="true" :rows="5" >
                             <Column header="Nombre">
                                 <template #body="slotProps">{{ slotProps.data.nombre }}</template>
                             </Column>
