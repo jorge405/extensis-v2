@@ -6,6 +6,7 @@ export default{
         return{
         display:false,
         estado_tik:'',
+        selectedUser:null,
         estado_tik_options:[
             {name:'cerrado C.S',code:'option 1'},
             {name:'postergado',code:'option 2'},
