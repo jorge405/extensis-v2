@@ -296,7 +296,7 @@ export default{
             asignado:null,
             nro_talonario: parseInt(this.nro_talonario),
             fecha_creacion: fecha_formateada,
-            fecha_asignada: fecha_formateada,
+            fecha_asignada:null,
             fecha_cs: null,
             fecha_ss: null,
             status: null,
