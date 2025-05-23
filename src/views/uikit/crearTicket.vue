@@ -55,7 +55,9 @@ export default{
         op_realizada:'',            
         equipo:'', 
         servicio:'',   
-        clave:'extensis23435'   
+        clave:'extensis23435',
+        mostrarNuevo:true,
+        switchEquipo:false   
         }
     },
     mounted(){
@@ -339,8 +341,15 @@ export default{
                 });                
             }
         }
-    },
+    }, 
     watch:{
+        switchEquipo(newval){
+            if(newval===true ){
+                this.mostrarNuevo=false;
+            }else if(newval===false){
+                this.mostrarNuevo=true;
+            }
+        },
         nro_talonario(newval){
             if(!newval){
                 this.errores.nro_talonario='el campo no puede estar vacio'
@@ -429,7 +438,9 @@ export default{
                         <span v-if="errores.nombre_fantasia" class=" text-sm font-semibold text-red-700">{{ errores.nombre_fantasia }}</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
+                <div class="font-semibold text-md mt-3">Nuevo/Existente</div>
+                <ToggleSwitch v-model="switchEquipo" /><hr class=" bg-blue-700 h-1 rounded-full">
+                <div v-if="mostrarNuevo" class="grid grid-cols-3 lg:grid-cols-3 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="tipo">Tipo</label><i class="pi pi-arrow-circle-down"></i>
                         <Select id="tipo"  :options="Tipo" optionLabel="tipo" v-model="tipo_captura" placeholder="Selecciona" class="w-full"></Select>
@@ -443,7 +454,7 @@ export default{
                         <Select id="Marca"  :options="Marca" optionLabel="marca" v-model="marca_captura" placeholder="Selecciona" class="w-full"></Select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
+                <div v-if="mostrarNuevo" class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="modelo">Modelo</label><i class="pi pi-arrow-circle-down"></i>
                         <Select id="modelo"  :options="Modelo" optionLabel="modelo" v-model="modelo_captura" placeholder="Selecciona" class="w-full"></Select>
@@ -453,6 +464,10 @@ export default{
                         <InputText id="RG" type="text" v-model="COD_REG"  />
                     </div>
                 </div>
+                <div class=" grid grid-cols-1 gap-2">
+                    
+                </div>
+                <hr class=" bg-blue-700 h-1 rounded-full">
                 <div class="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-2 gap-2">
                     <div class=" space-y-2 w-full">
                         <label for="solicitada">Op. Solicitada</label><i class="pi pi-wrench"></i>
